@@ -1,0 +1,66 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.31.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 094a7dd97f02bae3060766d25a32e339becb69001fd65ef918b402f07e0cf038
+
+name:           pava
+version:        0.1.0.0
+synopsis:       A checker for propositional logic derivations
+description:    Please see the README on GitHub at <https://github.com/grastello/pava#readme>
+category:       Data
+homepage:       https://github.com/grastello/pava#readme
+bug-reports:    https://github.com/grastello/pava/issues
+author:         Gabriele Rastello
+maintainer:     gabriele.rastello@edu.unito.it
+copyright:      2020 Gabriele Rastello
+license:        GPL-3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+
+source-repository head
+  type: git
+  location: https://github.com/grastello/pava
+
+library
+  exposed-modules:
+      Pava.Lib
+      Pava.Rules.AndElimination
+      Pava.Rules.AndIntroduction
+      Pava.Rules.Assumption
+      Pava.Rules.NotElimination
+      Pava.Rules.NotIntroduction
+      Pava.Rules.Util
+      Pava.Types
+      Pava.Util
+  other-modules:
+      Paths_pava
+  hs-source-dirs:
+      src
+  build-depends:
+      base >=4.7 && <5
+    , containers >=0.6.2.1 && <1
+    , microlens >=0.4.11.2
+    , mtl >=2.2.2 && <3
+    , parsec >=3.1.14 && <4
+  default-language: Haskell2010
+
+executable pava
+  main-is: Main.hs
+  other-modules:
+      Paths_pava
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , containers >=0.6.2.1 && <1
+    , microlens >=0.4.11.2
+    , mtl >=2.2.2 && <3
+    , parsec >=3.1.14 && <4
+    , pava
+  default-language: Haskell2010
