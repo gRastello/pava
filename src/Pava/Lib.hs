@@ -6,6 +6,7 @@ import           Pava.Rules.AndIntroduction
 import           Pava.Rules.AndElimination
 import           Pava.Rules.NotIntroduction
 import           Pava.Rules.NotElimination
+import           Pava.Rules.ImplicationElimination
 import           Pava.Types
 
 import           Text.ParserCombinators.Parsec
@@ -121,6 +122,7 @@ checkStep' s = select (error "something dreadful has happened.") c
             , ((s^.rule.name) == AndElimination,  checkAndElimination s)
             , ((s^.rule.name) == NotIntroduction, checkNotIntroduction s)
             , ((s^.rule.name) == NotElimination,  checkNotElimination s)
+            , ((s^.rule.name) == ImplicationElimination,  checkImplicationElimination s)
             ]
 
 sameIdError :: Step -> PavaError
