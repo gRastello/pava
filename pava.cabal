@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 094a7dd97f02bae3060766d25a32e339becb69001fd65ef918b402f07e0cf038
+-- hash: 9fa966b858cce292724196551f322cebedb7ab80c1c101678f2fc3fd5aa9daf0
 
 name:           pava
 version:        0.1.0.0
@@ -32,6 +32,8 @@ library
       Pava.Rules.AndElimination
       Pava.Rules.AndIntroduction
       Pava.Rules.Assumption
+      Pava.Rules.ImplicationElimination
+      Pava.Rules.ImplicationIntroduction
       Pava.Rules.NotElimination
       Pava.Rules.NotIntroduction
       Pava.Rules.Util

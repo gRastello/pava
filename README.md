@@ -7,9 +7,11 @@ This joke is way more obscure than your average 4chan meme (I estimate that some
 
 ## Installation instructions
 Currently the only way of getting pava is to clone this repo and build it with stack (or cabal).
+It may also be a good idea to checkout a particular version of pava (the latest) since development (if any) is done on the master branch.
 ```
 git clone https://github.com/grastello/pava
 cd pava
+git checkout v0.1.0.0
 stack build
 ```
 
@@ -24,7 +26,7 @@ stack exec pava derivation.pava
 ```
 
 ## The system
-Since pava is still pretty young the system is hands-down brutal: only two connectives (negation and conjunction) and only four rules; theoretically you do not need more.
+Pava supports all standard connectives (but negation (that will be added lated)) with rules for their introduction and elimination.
 
 ### Formulæ
 Formulæ in the system are written in the typical way.
@@ -33,9 +35,9 @@ The following examples should clarify any doubt you might have.
 ¬(A∧¬B)
 FOO∧BAR
 foo∧bar
+A⇒¬B
 ```
-Pava is case sensitive and requires you to type the `∧` and `¬` as is (no `not` or `and` for now) so you might want to rely on your editor's macro system to avoid
-copypasting a lot.
+Pava is case sensitive and requires you to type the `∧`, `⇒` and `¬` as is (no `not`, `implies` or `and` for now) so you might want to rely on your editor's macro system to avoid a lot of copying and pasting.
 
 ### Steps
 A derivation is a sequence of steps.
@@ -150,4 +152,50 @@ We derive `B` from a falsity `A∧¬A`.
 4 ¬B a;
 5 ¬(¬B) I¬(4, 2, 3) 1;
 6 B E¬(5) 1;
+```
+
+#### Implication introduction (`I⇒`)
+An assumption can be discarded into an implication.
+Suppose we have
+```
+n A a;
+m B R1 d1;
+```
+then the following is a valid step
+```
+k A⇒B I⇒(n, m) d2;
+```
+where `d2` is `d1` *minus* `n`.
+
+##### Example
+We can discard the assumption in the previous example to obtain a tautology (note that such tautology does not depend on *any* assumption).
+```
+1 A∧¬A a;
+2 A E∧(1) 1;
+3 ¬A E∧(1) 1;
+4 ¬B a;
+5 ¬(¬B) I¬(4, 2, 3) 1;
+6 B E¬(5) 1;
+7 A∧¬A ⇒ B I⇒(1, 6);
+```
+#### Implication elimination (`E⇒`)
+An implication can be eliminated via the standard modus ponens rule.
+If we have
+```
+n A⇒B R1 d1;
+m A R2 d2;
+```
+then the step
+```
+k B E⇒(n, m) d3;
+```
+where `d3` is the is the union of `d1` and `d2` (plus `n` or `m` if they happen to be assumptions) is justified.
+
+##### Example
+```
+1 A∧(A⇒B) a;
+2 A E∧(1) 1;
+3 A⇒B E∧(1) 1;
+4 B E⇒(3, 2) 1;
+5 A∧(A⇒B) ⇒ B I⇒(1, 4);
 ```
