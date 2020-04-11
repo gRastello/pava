@@ -6,6 +6,7 @@ import           Pava.Rules.AndIntroduction
 import           Pava.Rules.AndElimination
 import           Pava.Rules.NotIntroduction
 import           Pava.Rules.NotElimination
+import           Pava.Rules.ImplicationIntroduction
 import           Pava.Rules.ImplicationElimination
 import           Pava.Types
 
@@ -122,6 +123,7 @@ checkStep' s = select (error "something dreadful has happened.") c
             , ((s^.rule.name) == AndElimination,  checkAndElimination s)
             , ((s^.rule.name) == NotIntroduction, checkNotIntroduction s)
             , ((s^.rule.name) == NotElimination,  checkNotElimination s)
+            , ((s^.rule.name) == ImplicationIntroduction,  checkImplicationIntroduction s)
             , ((s^.rule.name) == ImplicationElimination,  checkImplicationElimination s)
             ]
 
@@ -135,9 +137,17 @@ sameIdError s = "Error while checking step\n"
 ---------------------------------
 testDerivation :: String
 testDerivation =
-     "1 A⇒B a;"
-  ++ "2 A a;"
-  ++ "3 B E⇒(1, 2) 1, 2;"
+     "1 A∧¬A a;"
+  ++ "2 A E∧(1) 1;"
+  ++ "3 ¬A E∧(1) 1;"
+  ++ "4 ¬B a;"
+  ++ "5 ¬(¬B) I¬(4, 2, 3) 1;"
+  ++ "6 B E¬(5) 1;"
+  ++ "7 A∧¬A ⇒ B I⇒(1, 6);"
+  -- ++ "3 A∧B⇒A I⇒(1, 2);"
+  --    "1 A⇒B a;"
+  -- ++ "2 A a;"
+  -- ++ "3 B E⇒(1, 2) 1, 2;"
   --    "1 A∧¬A a;\n"
   -- ++ "2 ¬A  E∧(1) 1;\n"
   -- ++ "3 A E∧(1) 1;\n"
