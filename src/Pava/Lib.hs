@@ -22,7 +22,7 @@ import           Prelude                                hiding (id)
 -- Parsers. --
 --------------
 pavaDef = emptyDef { To.commentLine     = "#"
-                   , To.reservedOpNames = ["∧", "¬"]
+                   , To.reservedOpNames = ["∧", "¬", "⇒"]
                    , To.reservedNames   = ["a", "I∧", "E∧", "I¬", "E¬"]
                    }
 
@@ -50,6 +50,7 @@ termP = parens formulaP <|> variableP
 
 operators = [ [Prefix (operator "¬" >> return Not)]
             , [Infix  (operator "∧" >> return And) AssocLeft]
+            , [Infix  (operator "⇒" >> return Implication) AssocLeft]
             ]
 
 ruleName :: Parser RuleName

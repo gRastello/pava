@@ -5,6 +5,7 @@ import           Lens.Micro
 
 data Formula = Variable String
              | And Formula Formula
+             | Implication Formula Formula
              | Not Formula
              deriving Eq
 
@@ -13,6 +14,7 @@ instance Show Formula where
   show (Not (Variable s)) = "¬" ++ s
   show (Not f) = "¬(" ++ show f ++ ")"
   show (And f1 f2) = show f1 ++ " ∧ " ++ show f2
+  show (Implication f1 f2) = show f1 ++ " ⇒ " ++ show f2
 
 -- Functions to check the kind of formula.
 isVariable :: Formula -> Bool
@@ -22,6 +24,10 @@ isVariable _ = False
 isAnd :: Formula -> Bool
 isAnd (And _ _) = True
 isAnd _ = False
+
+isImplication :: Formula -> Bool
+isImplication (Implication _ _) = True
+isImplication _ = False
 
 isNot :: Formula -> Bool
 isNot (Not _) = True
