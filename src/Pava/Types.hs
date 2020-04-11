@@ -36,6 +36,7 @@ isNot _ = False
 data RuleName = Assumption
               | AndIntroduction | AndElimination
               | NotIntroduction | NotElimination
+              | ImplicationIntroduction | ImplicationElimination
               deriving Eq
 
 instance Show RuleName where
@@ -44,6 +45,8 @@ instance Show RuleName where
   show AndElimination  = "E∧"
   show NotIntroduction = "I¬"
   show NotElimination  = "E¬"
+  show ImplicationIntroduction = "I⇒"
+  show ImplicationElimination = "E⇒"
 
 data Rule = Rule { _name      :: RuleName
                  , _arguments :: [Integer]

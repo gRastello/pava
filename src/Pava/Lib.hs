@@ -23,7 +23,7 @@ import           Prelude                                hiding (id)
 --------------
 pavaDef = emptyDef { To.commentLine     = "#"
                    , To.reservedOpNames = ["∧", "¬", "⇒"]
-                   , To.reservedNames   = ["a", "I∧", "E∧", "I¬", "E¬"]
+                   , To.reservedNames   = ["a", "I∧", "E∧", "I¬", "E¬", "I⇒", "E⇒"]
                    }
 
 lexer = To.makeTokenParser pavaDef
@@ -54,12 +54,14 @@ operators = [ [Prefix (operator "¬" >> return Not)]
             ]
 
 ruleName :: Parser RuleName
-ruleName = choice $ fmap f ["a", "I∧", "E∧", "I¬", "E¬"]
+ruleName = choice $ fmap f ["a", "I∧", "E∧", "I¬", "E¬", "I⇒", "E⇒"]
   where f "a"  = reserved "a"  >> return Assumption
         f "I∧" = reserved "I∧" >> return AndIntroduction
         f "E∧" = reserved "E∧" >> return AndElimination
         f "I¬" = reserved "I¬" >> return NotIntroduction
         f "E¬" = reserved "E¬" >> return NotElimination
+        f "I⇒" = reserved "I⇒" >> return ImplicationIntroduction
+        f "E⇒" = reserved "E⇒" >> return ImplicationElimination
 
 ruleArguments :: Parser [Integer]
 ruleArguments = parens $ natural `sepBy1` comma
@@ -111,7 +113,7 @@ checkStep s = do
       S.put $ M.insert (s^.id) s stepMap
       checkStep' s
 
--- Branches into a different checking function for each rule. 
+-- Branches into a different checking function for each rule.
 checkStep' :: Step -> S.State PavaState (Maybe PavaError)
 checkStep' s = select (error "something dreadful has happened.") c
   where c = [ ((s^.rule.name) == Assumption,      checkAssumption s)
@@ -131,12 +133,15 @@ sameIdError s = "Error while checking step\n"
 ---------------------------------
 testDerivation :: String
 testDerivation =
-     "1 A∧¬A a;\n"
-  ++ "2 ¬A  E∧(1) 1;\n"
-  ++ "3 A E∧(1) 1;\n"
-  ++ "4 ¬B a;\n"
-  ++ "5 ¬(¬B) I¬(4, 2, 3) 1;\n"
-  ++ "6 B E¬(5) 1;"
+     "1 A⇒B a;"
+  ++ "2 A a;"
+  ++ "3 B E⇒(1, 2) 1, 2;"
+  --    "1 A∧¬A a;\n"
+  -- ++ "2 ¬A  E∧(1) 1;\n"
+  -- ++ "3 A E∧(1) 1;\n"
+  -- ++ "4 ¬B a;\n"
+  -- ++ "5 ¬(¬B) I¬(4, 2, 3) 1;\n"
+  -- ++ "6 B E¬(5) 1;"
 -- testDerivation =
   --    "1 A a;\n"
   -- ++ "2 ¬B a;\n"
@@ -153,4 +158,3 @@ ultimateTesting :: IO ()
 ultimateTesting = case parse pava "test derivation" testDerivation of
     Left  err -> print err
     Right ss  -> putStrLn $ check ss
-
