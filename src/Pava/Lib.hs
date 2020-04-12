@@ -24,8 +24,8 @@ import           Prelude                                hiding (id)
 -- Parsers. --
 --------------
 pavaDef = emptyDef { To.commentLine     = "#"
-                   , To.reservedOpNames = ["∧", "¬", "⇒"]
-                   , To.reservedNames   = ["a", "I∧", "E∧", "I¬", "E¬", "I⇒", "E⇒"]
+                   , To.reservedOpNames = ["∧", "¬", "⇒", "∨"]
+                   , To.reservedNames   = ["a", "I∧", "E∧", "I¬", "E¬", "I⇒", "E⇒", "I∨", "E∨"]
                    }
 
 lexer = To.makeTokenParser pavaDef
@@ -52,11 +52,12 @@ termP = parens formulaP <|> variableP
 
 operators = [ [Prefix (operator "¬" >> return Not)]
             , [Infix  (operator "∧" >> return And) AssocLeft]
+            , [Infix  (operator "∨" >> return Or) AssocLeft]
             , [Infix  (operator "⇒" >> return Implication) AssocLeft]
             ]
 
 ruleName :: Parser RuleName
-ruleName = choice $ fmap f ["a", "I∧", "E∧", "I¬", "E¬", "I⇒", "E⇒"]
+ruleName = choice $ fmap f ["a", "I∧", "E∧", "I¬", "E¬", "I⇒", "E⇒", "I∨", "E∨"]
   where f "a"  = reserved "a"  >> return Assumption
         f "I∧" = reserved "I∧" >> return AndIntroduction
         f "E∧" = reserved "E∧" >> return AndElimination
@@ -64,6 +65,8 @@ ruleName = choice $ fmap f ["a", "I∧", "E∧", "I¬", "E¬", "I⇒", "E⇒"]
         f "E¬" = reserved "E¬" >> return NotElimination
         f "I⇒" = reserved "I⇒" >> return ImplicationIntroduction
         f "E⇒" = reserved "E⇒" >> return ImplicationElimination
+        f "I∨" = reserved "I∨" >> return OrIntroduction
+        f "E∨" = reserved "E∨" >> return OrElimination
 
 ruleArguments :: Parser [Integer]
 ruleArguments = parens $ natural `sepBy1` comma
@@ -137,13 +140,15 @@ sameIdError s = "Error while checking step\n"
 ---------------------------------
 testDerivation :: String
 testDerivation =
-     "1 A∧¬A a;"
-  ++ "2 A E∧(1) 1;"
-  ++ "3 ¬A E∧(1) 1;"
-  ++ "4 ¬B a;"
-  ++ "5 ¬(¬B) I¬(4, 2, 3) 1;"
-  ++ "6 B E¬(5) 1;"
-  ++ "7 A∧¬A ⇒ B I⇒(1, 6);"
+     "1 A a;"
+  ++ "2 A∨B I∨(1) 1;"
+  --    "1 A∧¬A a;"
+  -- ++ "2 A E∧(1) 1;"
+  -- ++ "3 ¬A E∧(1) 1;"
+  -- ++ "4 ¬B a;"
+  -- ++ "5 ¬(¬B) I¬(4, 2, 3) 1;"
+  -- ++ "6 B E¬(5) 1;"
+  -- ++ "7 A∧¬A ⇒ B I⇒(1, 6);"
   -- ++ "3 A∧B⇒A I⇒(1, 2);"
   --    "1 A⇒B a;"
   -- ++ "2 A a;"

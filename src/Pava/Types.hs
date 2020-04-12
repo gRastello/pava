@@ -6,6 +6,7 @@ import           Lens.Micro
 data Formula = Variable String
              | And Formula Formula
              | Implication Formula Formula
+             | Or Formula Formula
              | Not Formula
              deriving Eq
 
@@ -15,6 +16,7 @@ instance Show Formula where
   show (Not f) = "¬(" ++ show f ++ ")"
   show (And f1 f2) = show f1 ++ " ∧ " ++ show f2
   show (Implication f1 f2) = show f1 ++ " ⇒ " ++ show f2
+  show (Or f1 f2) = show f1 ++ " ∨ " ++ show f2
 
 -- Functions to check the kind of formula.
 isVariable :: Formula -> Bool
@@ -29,14 +31,23 @@ isImplication :: Formula -> Bool
 isImplication (Implication _ _) = True
 isImplication _ = False
 
+isOr :: Formula -> Bool
+isOr (Or _ _) = True
+isOr _ = False
+
 isNot :: Formula -> Bool
 isNot (Not _) = True
 isNot _ = False
 
 data RuleName = Assumption
-              | AndIntroduction | AndElimination
-              | NotIntroduction | NotElimination
-              | ImplicationIntroduction | ImplicationElimination
+              | AndIntroduction
+              | AndElimination
+              | NotIntroduction
+              | NotElimination
+              | ImplicationIntroduction
+              | ImplicationElimination
+              | OrIntroduction
+              | OrElimination
               deriving Eq
 
 instance Show RuleName where
@@ -47,6 +58,8 @@ instance Show RuleName where
   show NotElimination  = "E¬"
   show ImplicationIntroduction = "I⇒"
   show ImplicationElimination = "E⇒"
+  show OrIntroduction = "I∨"
+  show OrElimination  = "E∨"
 
 data Rule = Rule { _name      :: RuleName
                  , _arguments :: [Integer]
