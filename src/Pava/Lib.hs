@@ -8,6 +8,7 @@ import           Pava.Rules.NotIntroduction
 import           Pava.Rules.NotElimination
 import           Pava.Rules.ImplicationIntroduction
 import           Pava.Rules.ImplicationElimination
+import           Pava.Rules.OrIntroduction
 import           Pava.Types
 
 import           Text.ParserCombinators.Parsec
@@ -121,13 +122,14 @@ checkStep s = do
 -- Branches into a different checking function for each rule.
 checkStep' :: Step -> S.State PavaState (Maybe PavaError)
 checkStep' s = select (error "something dreadful has happened.") c
-  where c = [ ((s^.rule.name) == Assumption,      checkAssumption s)
-            , ((s^.rule.name) == AndIntroduction, checkAndIntroduction s)
-            , ((s^.rule.name) == AndElimination,  checkAndElimination s)
-            , ((s^.rule.name) == NotIntroduction, checkNotIntroduction s)
-            , ((s^.rule.name) == NotElimination,  checkNotElimination s)
-            , ((s^.rule.name) == ImplicationIntroduction,  checkImplicationIntroduction s)
+  where c = [ ((s^.rule.name) == Assumption,              checkAssumption s)
+            , ((s^.rule.name) == AndIntroduction,         checkAndIntroduction s)
+            , ((s^.rule.name) == AndElimination,          checkAndElimination s)
+            , ((s^.rule.name) == NotIntroduction,         checkNotIntroduction s)
+            , ((s^.rule.name) == NotElimination,          checkNotElimination s)
+            , ((s^.rule.name) == ImplicationIntroduction, checkImplicationIntroduction s)
             , ((s^.rule.name) == ImplicationElimination,  checkImplicationElimination s)
+            , ((s^.rule.name) == OrIntroduction,          checkOrIntroduction s)
             ]
 
 sameIdError :: Step -> PavaError
@@ -141,7 +143,9 @@ sameIdError s = "Error while checking step\n"
 testDerivation :: String
 testDerivation =
      "1 A a;"
-  ++ "2 A∨B I∨(1) 1;"
+  ++ "2 B a;"
+  ++ "3 A∧B I∧(1, 2) 1, 2;"   
+  ++ "4 (A∧B)∨B I∨(3) 1, 2;"
   --    "1 A∧¬A a;"
   -- ++ "2 A E∧(1) 1;"
   -- ++ "3 ¬A E∧(1) 1;"
