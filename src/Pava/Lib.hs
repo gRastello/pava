@@ -46,11 +46,23 @@ variableP = do
   whiteSpace
   return $ Variable var
 
+manyNot :: Parser Int
+manyNot = manyNot' 0
+  where
+    manyNot' :: Int -> Parser Int
+    manyNot' n = (operator "¬" >> manyNot' (succ n)) <|> return n
+
+negVariableP :: Parser Formula
+negVariableP = do
+  n <- manyNot
+  var <- variableP
+  return $ iterate Not var !! n
+
 formulaP :: Parser Formula
 formulaP = buildExpressionParser operators termP
 
 termP :: Parser Formula
-termP = parens formulaP <|> variableP
+termP = parens formulaP <|> variableP <|> negVariableP
 
 operators = [ [Prefix (operator "¬" >> return Not)]
             , [Infix  (operator "∧" >> return And) AssocLeft]
