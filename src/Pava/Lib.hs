@@ -9,6 +9,7 @@ import           Pava.Rules.NotElimination
 import           Pava.Rules.ImplicationIntroduction
 import           Pava.Rules.ImplicationElimination
 import           Pava.Rules.OrIntroduction
+import           Pava.Rules.OrElimination
 import           Pava.Types
 
 import           Text.ParserCombinators.Parsec
@@ -130,6 +131,7 @@ checkStep' s = select (error "something dreadful has happened.") c
             , ((s^.rule.name) == ImplicationIntroduction, checkImplicationIntroduction s)
             , ((s^.rule.name) == ImplicationElimination,  checkImplicationElimination s)
             , ((s^.rule.name) == OrIntroduction,          checkOrIntroduction s)
+            , ((s^.rule.name) == OrElimination,           checkOrElimination s)
             ]
 
 sameIdError :: Step -> PavaError
@@ -142,10 +144,24 @@ sameIdError s = "Error while checking step\n"
 ---------------------------------
 testDerivation :: String
 testDerivation =
-     "1 A a;"
-  ++ "2 B a;"
-  ++ "3 A∧B I∧(1, 2) 1, 2;"   
-  ++ "4 (A∧B)∨B I∨(3) 1, 2;"
+     "1  ¬(A∧B) a;"
+  ++ "2  ¬(¬A∨¬B) a;"
+  ++ "3  ¬A a;"
+  ++ "4  ¬A∨¬B I∨(3) 3;"
+  ++ "5  ¬(¬A) I¬(3, 2, 4) 2;"
+  ++ "6  A E¬(5) 2;"
+  ++ "7  ¬B a;"
+  ++ "8  ¬A∨¬B I∨(7) 7;"
+  ++ "9  ¬(¬B) I¬(7, 2, 8) 2;"
+  ++ "10 B E¬(9) 2;"
+  ++ "11 A∧B I∧(6, 10) 2;"
+  ++ "12 ¬(¬(¬A∨¬B)) I¬(2, 1, 11) 1;"
+  ++ "13 ¬A∨¬B E¬(12) 1;"
+  ++ "14 ¬(A∧B) ⇒ ¬A∨¬B I⇒(1, 13);"
+  --    "1 A a;"
+  -- ++ "2 B a;"
+  -- ++ "3 A∧B I∧(1, 2) 1, 2;"   
+  -- ++ "4 (A∧B)∨B I∨(3) 1, 2;"
   --    "1 A∧¬A a;"
   -- ++ "2 A E∧(1) 1;"
   -- ++ "3 ¬A E∧(1) 1;"
