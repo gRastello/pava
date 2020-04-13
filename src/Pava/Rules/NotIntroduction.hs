@@ -19,7 +19,7 @@ import           Prelude             hiding (id)
 -- + the step depends on the union of the assumptions of the second two
 --   arguments steps but not on the first step,
 -- + the second two arguments steps are one the formal negation of the other,
--- + the step's formula is the negation of the first argument formula. 
+-- + the step's formula is the negation of the first argument formula.
 checkNotIntroduction :: Step -> S.State PavaState (Maybe PavaError)
 checkNotIntroduction s = do
   stepMap <- S.get
@@ -47,7 +47,11 @@ checkDependencies s stepMap =
   let args = s^.rule.arguments in
   case mapM (`M.lookup` stepMap) args of
     Nothing -> error "Something terrible has happened!" -- Should never happen.
-    Just steps -> (concat (_dependsOn <$> tail steps) `setMinus` (head steps ^. id)) `setEqual` (s^.dependsOn)
+    Just steps -> (concat (f <$> tail steps) `setMinus` (head steps ^. id)) `setEqual` (s^.dependsOn)
+      where
+        f :: Step -> [Integer]
+        f s | s^.rule.name == Assumption = [s^.id]
+            | otherwise = s^.dependsOn
 
 -- Check that the second and third arguments' formulae are one the formal
 -- negation of the other.
@@ -72,7 +76,7 @@ checkFormula s stepMap =
   case M.lookup arg stepMap of
     Nothing -> error "Something terrible has happened!" -- Should never happen.
     Just step -> Not (step^.formula) == s^.formula
-    
+
 firstAssumptionError :: Step -> PavaError
 firstAssumptionError s = "Error while checking step\n"
   ++ "  " ++ show s
