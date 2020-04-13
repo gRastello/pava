@@ -199,3 +199,56 @@ where `d3` is the is the union of `d1` and `d2` (plus `n` or `m` if they happen 
 4 B E⇒(3, 2) 1;
 5 A∧(A⇒B) ⇒ B I⇒(1, 4);
 ```
+
+#### Or Introduction (`I∨`)
+The simplest rule.
+Given a step
+```
+n A R1 d1;
+```
+we can set a new step:
+```
+m A∨B I∨(n) d1;
+```
+where `B` is *any* formula.
+
+##### Example
+We derive one of the De Morgan's Laws (in one direction only).
+```
+1  ¬(A∧B) a;
+2  ¬(¬A∨¬B) a;
+3  ¬A a;
+4  ¬A∨¬B I∨(3) 3;
+5  ¬(¬A) I¬(3, 2, 4) 2;
+6  A E¬(5) 2;
+7  ¬B a;
+8  ¬A∨¬B I∨(7) 7;
+9  ¬(¬B) I¬(7, 2, 8) 2;
+10 B E¬(9) 2;
+11 A∧B I∧(6, 10) 2;
+12 ¬(¬(¬A∨¬B)) I¬(2, 1, 11) 1;
+13 ¬A∨¬B E¬(12) 1;
+14 ¬(A∧B) ⇒ ¬A∨¬B I⇒(1, 13);
+```
+
+#### Or Elimination (`E∨`)
+Suppose we have steps
+```
+n A∨B R1 d1;
+m ¬A  R2 d2;
+```
+then the step
+```
+k B E∨(n, m) d3;
+```
+where `d3` is the union of `d1` and `d2` plus `n` and/or `m` if the associated steps are assumptions is justified.
+
+##### Example
+```
+1 A∨B a;
+2 ¬A a;
+3 B E∨(1, 2) 1, 2;
+```
+
+## Known Issues
+- The not-introduction rule is bugged in version 0.1.0.0; everything is already fixed in this branch.
