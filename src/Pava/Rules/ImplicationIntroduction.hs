@@ -68,7 +68,11 @@ dependencies s stepMap =
   let args = s^.rule.arguments in
   case mapM (`M.lookup` stepMap) args of
     Nothing -> error "Something terrible has happended!" -- This should never happen as for the checks we do before.
-    Just [s1, s2] -> ((s1^.dependsOn) `setMinus` (s1^.id)) `setEqual` (s^.dependsOn)
+    Just [s1, s2] -> (f s2 `setMinus` (s1^.id)) `setEqual` (s^.dependsOn)
+      where
+        f :: Step -> [Integer]
+        f s | s^.rule.name == Assumption = [s^.id]
+            | otherwise = s^.dependsOn
 
 implicationError :: Step -> PavaError
 implicationError s = "Error while checking step\n"

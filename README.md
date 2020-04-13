@@ -251,4 +251,4 @@ where `d3` is the union of `d1` and `d2` plus `n` and/or `m` if the associated s
 ```
 
 ## Known Issues
-- The not-introduction rule is bugged in version 0.1.0.0; everything is already fixed in this branch.
+- The not-introduction and implication-introduction rules are bugged in version 0.1.0.0; everything is already fixed in this branch (and in the next version as well).
