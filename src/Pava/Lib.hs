@@ -1,4 +1,4 @@
-module Pava.Lib (pava, check) where
+module Pava.Lib (pavaP, check) where
 
 import           Pava.Util
 import           Pava.Rules.Assumption
@@ -46,15 +46,15 @@ variableP = do
   whiteSpace
   return $ Variable var
 
-manyNot :: Parser Int
-manyNot = manyNot' 0
+manyNotP :: Parser Int
+manyNotP = manyNot' 0
   where
     manyNot' :: Int -> Parser Int
     manyNot' n = (operator "¬" >> manyNot' (succ n)) <|> return n
 
 negVariableP :: Parser Formula
 negVariableP = do
-  n <- manyNot
+  n <- manyNotP
   var <- variableP
   return $ iterate Not var !! n
 
@@ -70,8 +70,8 @@ operators = [ [Prefix (operator "¬" >> return Not)]
             , [Infix  (operator "⇒" >> return Implication) AssocLeft]
             ]
 
-ruleName :: Parser RuleName
-ruleName = choice $ fmap f ["a", "I∧", "E∧", "I¬", "E¬", "I⇒", "E⇒", "I∨", "E∨"]
+ruleNameP :: Parser RuleName
+ruleNameP = choice $ fmap f ["a", "I∧", "E∧", "I¬", "E¬", "I⇒", "E⇒", "I∨", "E∨"]
   where f "a"  = reserved "a"  >> return Assumption
         f "I∧" = reserved "I∧" >> return AndIntroduction
         f "E∧" = reserved "E∧" >> return AndElimination
@@ -82,14 +82,14 @@ ruleName = choice $ fmap f ["a", "I∧", "E∧", "I¬", "E¬", "I⇒", "E⇒", "
         f "I∨" = reserved "I∨" >> return OrIntroduction
         f "E∨" = reserved "E∨" >> return OrElimination
 
-ruleArguments :: Parser [Integer]
-ruleArguments = parens $ natural `sepBy1` comma
+ruleArgumentsP :: Parser [Integer]
+ruleArgumentsP = parens $ natural `sepBy1` comma
 
 ruleP :: Parser Rule
 ruleP = do
-  name <- ruleName
+  name <- ruleNameP
   whiteSpace
-  arguments <- ruleArguments <|> return []
+  arguments <- ruleArgumentsP <|> return []
   whiteSpace
   return $ Rule name arguments
 
@@ -102,8 +102,8 @@ stepP = do
   semi
   return $ Step i f r d
 
-pava :: Parser [Step]
-pava = whiteSpace >> many1 stepP
+pavaP :: Parser [Step]
+pavaP = whiteSpace >> many1 stepP
 
 ----------------------
 -- The actual Pava. --
@@ -204,6 +204,6 @@ testDerivation =
   -- ++ "9 C E∧(8) 7;\n"
 
 ultimateTesting :: IO ()
-ultimateTesting = case parse pava "test derivation" testDerivation of
+ultimateTesting = case parse pavaP "test derivation" testDerivation of
     Left  err -> print err
     Right ss  -> putStrLn $ check ss
